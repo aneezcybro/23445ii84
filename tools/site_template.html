@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Odoo Complete Training</title>
+<meta name="description" content="Odoo fundamentals, accounting, module workflows and implementation, from Cybrosys Technologies.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── Content styles carried over from the slide deck ── */
+{{DECK_CSS}}
+
+/* ── Website layout ── */
+:root{--top:64px;--side:290px;color-scheme:light;}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--top) + 16px);}
+body{display:block;min-height:0;overflow:visible;user-select:auto;background:#f4f3f3;color:var(--dark);-webkit-font-smoothing:antialiased;}
+a{color:inherit;}
+
+.topbar{position:fixed;inset:0 0 auto 0;height:var(--top);background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;padding:0 24px;z-index:50;}
+.topbar img{height:32px;width:auto;}
+.topbar .brand-sep{width:1px;height:28px;background:var(--border);}
+.topbar .brand-title{font-weight:800;font-size:15px;letter-spacing:.3px;}
+.topbar .spacer{flex:1;}
+.topbar .btn{display:inline-flex;align-items:center;gap:8px;border-radius:8px;padding:9px 16px;font:700 13px 'Red Hat Display',sans-serif;text-decoration:none;cursor:pointer;border:2px solid var(--red);}
+.btn-solid{background:var(--red);color:#fff;}
+.btn-solid:hover{background:var(--red2);border-color:var(--red2);}
+.btn-ghost{background:#fff;color:var(--red);}
+.topbar .menu-btn{display:none;}
+.progress{position:absolute;left:0;bottom:-1px;height:3px;width:0;background:linear-gradient(90deg,var(--red),var(--red2));}
+
+.sidebar{position:fixed;top:var(--top);bottom:0;left:0;width:var(--side);background:#fff;border-right:1px solid var(--border);overflow-y:auto;padding:18px 12px 40px;z-index:40;}
+.sidebar h2{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:0 10px 10px;}
+.sidebar ul{list-style:none;}
+.nav-ch-link{display:flex;gap:10px;align-items:baseline;padding:8px 10px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:700;}
+.nav-ch-link span{font-size:11px;font-weight:800;color:var(--red);min-width:18px;}
+.nav-ch-link:hover{background:var(--off);}
+.nav-ch ul{display:none;margin:2px 0 8px 38px;border-left:2px solid var(--border);}
+.nav-ch.open ul{display:block;}
+.nav-ch.open > .nav-ch-link{background:#fdf2f2;color:var(--red);}
+.nav-ch ul a{display:block;padding:5px 12px;font-size:13px;color:var(--muted);text-decoration:none;line-height:1.4;margin-left:-2px;border-left:2px solid transparent;}
+.nav-ch ul a:hover{color:var(--dark);}
+.nav-ch ul a.active{color:var(--red);font-weight:700;border-left-color:var(--red);}
+
+main{margin-left:var(--side);padding:calc(var(--top) + 28px) 40px 60px;}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:28px;}
+
+/* hero */
+.hero{position:relative;overflow:hidden;background:#fff;border-radius:18px;padding:64px 48px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px;box-shadow:0 2px 14px rgba(0,0,0,.05);}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,var(--red),var(--red2));}
+.hero::after{content:'';position:absolute;right:-120px;top:-120px;width:400px;height:400px;border-radius:50%;background:var(--red);opacity:.06;pointer-events:none;}
+.hero h1{font-size:clamp(34px,5.4vw,58px);font-weight:900;line-height:1.05;letter-spacing:.5px;}
+.hero .lead{font-size:clamp(16px,2vw,20px);font-weight:600;color:var(--red);}
+.hero p{font-size:16px;color:var(--muted);max-width:640px;line-height:1.75;}
+.hero .rule{width:60px;height:3px;background:var(--red);border-radius:2px;}
+.hero-chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
+.chip{border:2px solid var(--dark);border-radius:30px;padding:8px 20px;font-size:13px;font-weight:700;background:var(--off);}
+.chip.r{border-color:var(--red);color:var(--red);}
+.chip.s{background:var(--red);border-color:var(--red);color:#fff;}
+.stats{display:flex;gap:36px;flex-wrap:wrap;justify-content:center;margin-top:6px;}
+.stat b{display:block;font-size:30px;font-weight:900;color:var(--red);}
+.stat span{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);}
+
+/* overview */
+.ov-head{display:flex;align-items:end;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.ov-head h2{font-size:26px;font-weight:900;}
+.ov-head p{color:var(--muted);font-size:14px;}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;}
+.ov-card{background:#fff;border-radius:12px;padding:16px 18px;border-left:4px solid var(--red);text-decoration:none;display:flex;flex-direction:column;gap:4px;transition:transform .15s,box-shadow .15s;}
+.ov-card:nth-child(even){border-left-color:var(--dark);}
+.ov-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.08);}
+.ov-num{font-size:12px;font-weight:900;color:var(--red);}
+.ov-name{font-size:16px;font-weight:800;}
+.ov-desc{font-size:13px;color:var(--muted);line-height:1.45;}
+.ov-count{font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.6px;margin-top:4px;}
+
+/* chapters */
+.chapter{display:flex;flex-direction:column;gap:22px;scroll-margin-top:calc(var(--top) + 16px);}
+.banner{border-radius:18px;padding:56px 32px!important;min-height:260px;box-shadow:0 2px 14px rgba(0,0,0,.06);flex:none!important;}
+.banner-plain{background:linear-gradient(135deg,var(--dark) 0%,#3a1010 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;}
+.banner-plain h2{font-size:clamp(32px,4.6vw,52px);font-weight:900;line-height:1;}
+.banner-plain p{font-size:18px;color:rgba(255,255,255,.7);}
+.banner-kicker{background:var(--red);border-radius:50px;padding:8px 24px;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;}
+
+.topic{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.05);scroll-margin-top:calc(var(--top) + 16px);}
+.topic-hdr{background:linear-gradient(90deg,var(--red),var(--red2));color:#fff;padding:18px 28px;display:flex;gap:16px;align-items:center;}
+.topic-num{font-size:13px;font-weight:900;background:rgba(255,255,255,.18);border-radius:8px;padding:6px 9px;flex-shrink:0;}
+.topic-hdr h3{font-size:22px;font-weight:900;letter-spacing:.2px;line-height:1.25;}
+.topic-sub{font-size:14px;font-weight:500;opacity:.85;margin-top:3px;}
+.topic-body{padding:24px 28px 28px;display:flex;flex-direction:column;gap:14px;zoom:1.12;}
+.topic-body.topic-row{flex-direction:row;}
+.topic-body .body,.topic-body [style*="height:100%"]{height:auto!important;}
+.topic-body [style*="overflow:hidden"]{overflow:visible!important;}
+.topic-body .matrix{display:block;overflow-x:auto;}
+.topic-body .matrix tbody,.topic-body .matrix thead{display:table;width:100%;}
+
+.closing{margin-top:12px;}
+footer.site-ftr{background:var(--dark);color:rgba(255,255,255,.6);border-radius:14px;padding:18px 28px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:13px;}
+footer.site-ftr strong{color:#fff;}
+footer.site-ftr a{color:#fff;}
+
+.to-top{position:fixed;right:22px;bottom:22px;width:44px;height:44px;border-radius:50%;background:var(--red);color:#fff;border:none;font-size:20px;cursor:pointer;box-shadow:0 6px 18px rgba(177,33,38,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:30;}
+.to-top.show{opacity:1;pointer-events:auto;}
+.scrim{display:none;}
+
+/* ── Tablet / phone ── */
+@media (max-width:1080px){
+  .sidebar{transform:translateX(-100%);transition:transform .25s;box-shadow:0 0 40px rgba(0,0,0,.15);}
+  body.nav-open .sidebar{transform:none;}
+  body.nav-open .scrim{display:block;position:fixed;inset:var(--top) 0 0 0;background:rgba(0,0,0,.3);z-index:35;}
+  main{margin-left:0;padding:calc(var(--top) + 20px) 24px 48px;}
+  .topbar .menu-btn{display:inline-flex;}
+  .topic-body{zoom:1;}
+}
+@media (max-width:760px){
+  .topbar{padding:0 16px;gap:10px;}
+  .topbar .brand-sep,.topbar .brand-title,.btn-ghost .lbl{display:none;}
+  .topbar img{height:26px;}
+  main{padding:calc(var(--top) + 16px) 16px 40px;}
+  .hero{padding:44px 20px;}
+  .banner{padding:40px 18px!important;min-height:0;}
+  .banner [style*="font-size:5"]{font-size:34px!important;}
+  .banner [style*="font-size:22px"],.banner [style*="font-size:20px"]{font-size:17px!important;}
+  .topic-hdr{padding:16px 18px;}
+  .topic-hdr h3{font-size:18px;}
+  .topic-body{padding:18px 16px 20px;}
+  /* reflow fixed slide layouts into one column */
+  .topic-body [style*="grid-template-columns"]{grid-template-columns:1fr!important;}
+  .topic-body [style*="grid-column"]{grid-column:auto!important;}
+  .topic-body .two-col,.topic-body .three-col,.topic-body .stock-flow,.topic-body .flow.row{flex-direction:column;}
+  .topic-body [style*="display:flex"]:not([style*="flex-direction:column"]){flex-wrap:wrap;}
+  .topic-body [style*="width:"]:not(img):not([style*="border-radius:50%"]){max-width:100%;}
+  .topic-body [style*="min-width"]{min-width:0!important;}
+  .topic-body .divider-v{display:none;}
+  .topic-body.topic-row,.topic-body > [style*="display:flex"]:not([style*="flex-direction:column"]){flex-direction:column;align-items:stretch!important;row-gap:14px;padding:14px!important;}
+  .topic-body > [style*="display:flex"] > *{border-right:none!important;padding-left:0!important;padding-right:0!important;}
+  .topic-body > [style*="display:flex"] > [style*="padding:18px"]{padding:18px!important;}
+  .topic-body .sf-arrow,.topic-body .flow.row .step-arrow,.topic-body > [style*="display:flex"] > .arr{transform:rotate(90deg);justify-content:center;align-self:center;}
+  .topic-body .acct-row{flex-wrap:wrap;}
+  .topic-body .acct-label{min-width:0;width:100%;}
+  .topic-body div{min-width:0;}
+  .topic-body table{display:block;overflow-x:auto;max-width:100%;}
+  .topic-body .ver-boxes{flex-wrap:wrap;}
+  .topic-body .ver-box{flex:1 0 64px;}
+}
+@media print{
+  .topbar,.sidebar,.to-top{display:none;}
+  main{margin:0;padding:0;}
+  .topic,.banner{break-inside:avoid;box-shadow:none;}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <button class="btn btn-ghost menu-btn" id="menuBtn" aria-label="Open contents" aria-expanded="false">☰ <span class="lbl">Contents</span></button>
+  <a href="#top"><img src="{{LOGO}}" alt="Cybrosys Technologies"></a>
+  <span class="brand-sep"></span>
+  <span class="brand-title">Odoo Complete Training</span>
+  <span class="spacer"></span>
+  <a class="btn btn-solid" href="slides.html">▶ <span>Slides</span></a>
+  <div class="progress" id="progress"></div>
+</header>
+
+<nav class="sidebar" id="sidebar" aria-label="Contents">
+  <h2>Contents</h2>
+  <ul>{{NAV}}</ul>
+</nav>
+<div class="scrim" id="scrim"></div>
+
+<main id="top">
+  <div class="wrap">
+    <section class="hero">
+      <img src="{{LOGO}}" alt="Cybrosys Technologies" style="height:52px;width:auto;">
+      <div class="rule"></div>
+      <h1>ODOO COMPLETE TRAINING</h1>
+      <div class="lead">Version · Edition · Hosting · Accounting · Modules · Implementation</div>
+      <p>A comprehensive guide covering Odoo fundamentals — from what Odoo is and how it's deployed, to how a full business transaction flows across all modules.</p>
+      <div class="hero-chips">
+        <span class="chip r">🎓 Beginner to Advanced</span>
+        <span class="chip">💼 Real Project Focus</span>
+        <span class="chip s">📊 Accounting Included</span>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>{{CHAPTER_COUNT}}</b><span>Chapters</span></div>
+        <div class="stat"><b>{{TOPIC_COUNT}}</b><span>Topics</span></div>
+        <div class="stat"><b>13</b><span>Modules</span></div>
+      </div>
+    </section>
+
+    <section id="overview">
+      <div class="ov-head"><h2>What We Will Cover</h2><p>Jump to any chapter, or read straight through.</p></div>
+      <div class="ov-grid" style="margin-top:14px;">{{OVERVIEW}}</div>
+    </section>
+
+{{CHAPTERS}}
+
+    <section class="closing">{{CLOSING}}</section>
+    <footer class="site-ftr"><span><strong>CYBROSYS TECHNOLOGIES</strong> · Odoo Complete Training Guide</span><a href="slides.html">View as slide deck →</a></footer>
+  </div>
+</main>
+
+<button class="to-top" id="toTop" aria-label="Back to top">↑</button>
+
+<script>
+(function () {
+  const body = document.body;
+  const menuBtn = document.getElementById('menuBtn');
+  const setNav = open => { body.classList.toggle('nav-open', open); menuBtn.setAttribute('aria-expanded', open); };
+  menuBtn.addEventListener('click', () => setNav(!body.classList.contains('nav-open')));
+  document.getElementById('scrim').addEventListener('click', () => setNav(false));
+  document.querySelectorAll('.sidebar a').forEach(a => a.addEventListener('click', () => setNav(false)));
+
+  // Reading progress + back-to-top
+  const progress = document.getElementById('progress');
+  const toTop = document.getElementById('toTop');
+  toTop.addEventListener('click', () => window.scrollTo({ top: 0 }));
+  const onScroll = () => {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    progress.style.width = (max > 0 ? scrollY / max * 100 : 0) + '%';
+    toTop.classList.toggle('show', scrollY > 800);
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // Highlight the chapter and topic currently in view
+  const chapters = document.querySelectorAll('.nav-ch');
+  const topicLinks = new Map([...document.querySelectorAll('.nav-ch ul a')].map(a => [a.hash.slice(1), a]));
+  let activeLink = null;
+  const openChapter = n => chapters.forEach(li => li.classList.toggle('open', li.dataset.chapter === n));
+  const spy = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      if (el.classList.contains('chapter')) { openChapter(el.dataset.chapter); return; }
+      const link = topicLinks.get(el.id);
+      if (!link) return;
+      if (activeLink) activeLink.classList.remove('active');
+      activeLink = link;
+      link.classList.add('active');
+      openChapter(el.closest('.chapter').dataset.chapter);
+      const sb = document.getElementById('sidebar');
+      const r = link.getBoundingClientRect();
+      if (r.top < 80 || r.bottom > innerHeight - 20) sb.scrollTop += r.top - innerHeight / 2;
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  document.querySelectorAll('.chapter, .topic').forEach(el => spy.observe(el));
+})();
+</script>
+</body>
+</html>
