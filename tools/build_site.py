@@ -3,7 +3,7 @@
 
 The deck in source/odoo-workflow-slides.html is the single source of truth:
 every slide's content is reused as-is, and this script only re-wraps it into
-a scrollable, responsive page with chapter navigation.
+a scrollable, responsive page with chapter navigation and a presenter mode.
 
     python3 tools/build_site.py
 """
@@ -92,10 +92,48 @@ def render_topic(slide, num, prefix):
     )
 
 
-def render_banner(slide):
+def strip_styles(node):
+    for el in [node, *node.find_all(style=True)]:
+        el.attrs.pop("style", None)
+    return node
+
+
+def banner_html(kicker, title, sub="", paras=(), chips=()):
+    """A chapter or section title slide, in the site's own minimal style."""
+    parts = ['<div class="banner">']
+    if kicker:
+        parts.append(f'<div class="banner-kicker">{kicker}</div>')
+    parts.append(f"<h2>{title}</h2>")
+    if sub:
+        parts.append(f'<p class="banner-sub">{sub}</p>')
+    parts += [f'<p class="banner-desc">{p}</p>' for p in paras]
+    if chips:
+        parts.append('<ul class="banner-chips">' + "".join(f"<li>{c}</li>" for c in chips) + "</ul>")
+    parts.append("</div>")
+    return "".join(parts)
+
+
+def render_banner(slide, kicker_override=""):
+    """Rebuild a full-bleed intro/divider slide from its text, dropping its decoration."""
     inner = clean(slide.find("div", recursive=False))
-    inner["class"] = ["banner"]
-    return str(inner)
+    kicker, title, sub, paras, chips = "", "", "", [], []
+    for el in inner.find_all(recursive=False):
+        style = el.get("style") or ""
+        if "position:absolute" in style or not el.get_text(strip=True):
+            continue
+        size = re.search(r"font-size:(\d+)", style)
+        size = int(size.group(1)) if size else 0
+        if "display:flex" in style:
+            chips = [c.get_text(" ", strip=True) for c in el.find_all(recursive=False) if c.get_text(strip=True)]
+        elif not kicker and not title and "background:var(--red)" in style:
+            kicker = el.get_text(" ", strip=True)
+        elif size >= 40:
+            title = el.decode_contents().strip()
+        elif title and not sub and size >= 18:
+            sub = el.decode_contents().strip()
+        else:
+            paras.append(strip_styles(el).decode_contents().strip())
+    return banner_html(kicker_override or kicker, title, sub, paras, chips)
 
 
 def main():
@@ -120,12 +158,9 @@ def main():
             cid = f"ch-{idx + 1:02d}-{slugify(name)}"
             current = {"id": cid, "idx": idx + 1, "name": name, "desc": desc, "parts": [], "topics": []}
             if slide.select_one(".hdr-title") is None:
-                current["parts"].append(render_banner(slide))
+                current["parts"].append(render_banner(slide, f"Chapter {idx + 1:02d}"))
                 continue
-            current["parts"].append(
-                f'<div class="banner banner-plain"><div class="banner-kicker">Chapter {idx + 1:02d}</div>'
-                f"<h2>{name}</h2><p>{desc}</p></div>"
-            )
+            current["parts"].append(banner_html(f"Chapter {idx + 1:02d}", name, desc))
         if slide.select_one(".hdr-title") is None:
             current["parts"].append(render_banner(slide))
             continue
